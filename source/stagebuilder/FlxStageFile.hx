@@ -59,7 +59,7 @@ class FlxStageFile
             {
                 var jsonFile:FileFormat = {
                     assets: [],
-                    generatedBy: "FlxStageBuilder v0.1.1",
+					generatedBy: "FlxStageBuilder v" + lime.app.Application.current.meta.get("version"),
                     format: "json"
                 }
 
@@ -91,7 +91,7 @@ class FlxStageFile
             {
 					var jsonFile:FileFormat = {
 						assets: [],
-						generatedBy: "FlxStageBuilder v0.1.1",
+						generatedBy: "FlxStageBuilder v" + lime.app.Application.current.meta.get("version"),
 						format: "json+base64"
 					}
 

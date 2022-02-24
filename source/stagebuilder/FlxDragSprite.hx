@@ -6,7 +6,7 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 
 class FlxDragSprite extends FlxSprite
 {
-	private var dragActive:Bool = false;
+	public var dragActive:Bool = false;
 
 	private var initX:Float = 0;
 	private var initY:Float = 0;

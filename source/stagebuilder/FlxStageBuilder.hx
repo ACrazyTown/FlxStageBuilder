@@ -31,9 +31,11 @@ class FlxStageBuilder extends FlxState
 	var assets:Array<AssetMapFormat> = [];
 	var availableID:Int = -1;
 
-	var spriteGroup:FlxTypedGroup<FlxSprite>;
+	var spriteGroup:FlxTypedGroup<FlxDragSprite>;
 
 	var fileReference:FileReference;
+
+	var sprText:FlxText;
 
 	override public function create()
 	{
@@ -44,12 +46,18 @@ class FlxStageBuilder extends FlxState
 		var bg = FlxGridOverlay.create(10, 10);
 		add(bg);
 
-		var lmao:FlxText = new FlxText(0, 20, 0, "Drag and drop images! by acrazytown owo", 24);
+		var lmao:FlxText = new FlxText(0, 20, 0, "Drag and drop an image.", 24);
 		lmao.screenCenter(X);
+		lmao.color = 0xFF000000;
 		add(lmao);
 
-		spriteGroup = new FlxTypedGroup<FlxSprite>();
+		spriteGroup = new FlxTypedGroup<FlxDragSprite>();
 		add(spriteGroup);
+
+		sprText = new FlxText(10, 10, 0, "null", 24);
+		sprText.visible = false;
+		sprText.color = 0xFF000000;
+		add(sprText);
 
 		FlxG.stage.window.onDropFile.add(function(path:String) {
 			trace("combobulating asset with path: " + path);
@@ -83,6 +91,7 @@ class FlxStageBuilder extends FlxState
 	{
 		super.update(elapsed);
 
+		// buggy as hell
 		if (FlxG.keys.pressed.SHIFT)
 		{
 			if (!FlxG.mouse.pressedMiddle)
@@ -96,8 +105,8 @@ class FlxStageBuilder extends FlxState
 
 			if (FlxG.mouse.pressedMiddle)
 			{
-				FlxG.camera.x = initCamX + (FlxG.mouse.screenX - initMsX);
-				FlxG.camera.y = initCamY + (FlxG.mouse.screenY - initMsY);
+				FlxG.camera.x = initCamX + (FlxG.mouse.x - initMsX);
+				FlxG.camera.y = initCamY + (FlxG.mouse.y - initMsY);
 			}
 		}
 
@@ -112,13 +121,24 @@ class FlxStageBuilder extends FlxState
 		}
 
 		if (FlxG.keys.justPressed.ONE)
+		{
 			FlxStageFile.generate(Json, assets);
-		if (FlxG.keys.justPressed.TWO)
-			FlxStageFile.generate(JsonBase64, assets);
-		if (FlxG.keys.justPressed.THREE)
-			FlxStageFile.generate(Archive, assets);
+		}
+		//if (FlxG.keys.justPressed.TWO)
+		//	FlxStageFile.generate(JsonBase64, assets);
+		//if (FlxG.keys.justPressed.THREE)
+		//	FlxStageFile.generate(Archive, assets);
 		if (FlxG.keys.justPressed.FOUR)
 			buildStageFromFile();
+
+		spriteGroup.forEach(function(spr:FlxDragSprite)
+		{
+			if (spr.dragActive)
+			{
+				sprText.visible = true;
+				sprText.text = 'X: ${spr.x}\nY: ${spr.y}';
+			}
+		});
 	}
 
 	function buildStageFromFile()
@@ -142,16 +162,7 @@ class FlxStageBuilder extends FlxState
 					{
 						// they're sorted in from first to last... i think???
 						var bitmap:BitmapData;
-
-						if (asset.base64Data != null)
-						{
-							trace("feeding from base64");
-							bitmap = BitmapData.fromBase64(asset.base64Data, "image/png");
-						}
-						else
-						{
-							bitmap = BitmapData.fromFile(asset.assetPath);
-						}
+						bitmap = BitmapData.fromFile(asset.assetPath);
 
 						var graph:FlxGraphic = FlxGraphic.fromBitmapData(bitmap);
 
